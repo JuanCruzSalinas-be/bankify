@@ -106,12 +106,12 @@ export default function DashboardPage() {
         <section className="mx-auto max-w-6xl px-6 pt-16 pb-8">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-sm font-semibold uppercase tracking-wider text-emerald-400">
+              <p className="text-sm font-semibold uppercase tracking-wider text-emerald-400">
                 Dashboard
-              </h1>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Calls and transfers, screened in real time.
               </p>
+              <h1 className="mt-2 text-3xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl">
+                Screened in real time.
+              </h1>
             </div>
             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-400">
               Sample data for demonstration

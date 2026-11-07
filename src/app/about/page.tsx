@@ -38,13 +38,14 @@ export default function AboutPage() {
       <Nav />
       <main className="flex-1">
         <section className="mx-auto max-w-3xl px-6 pt-20 pb-10 text-center">
-          <h1 className="text-sm font-semibold uppercase tracking-wider text-emerald-400">
+          <p className="text-sm font-semibold uppercase tracking-wider text-emerald-400">
             About Bankify
-          </h1>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            The call sounds exactly like someone you trust. That&apos;s the
-            problem.
           </p>
+          <h1 className="mt-3 text-3xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl">
+            The voice is real.
+            <br />
+            The person isn&apos;t.
+          </h1>
           <p className="mt-5 text-slate-300">
             Bankify exists because of one specific, fast-growing threat:
             real-time AI impersonation used to talk someone into authorizing

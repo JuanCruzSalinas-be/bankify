@@ -10,6 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading);
+  --font-display: var(--font-display);
 }
 
 body {
@@ -18,10 +19,13 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-h1,
 h2,
 h3,
 h4 {
   font-family: var(--font-heading), Arial, Helvetica, sans-serif;
   letter-spacing: -0.01em;
+}
+
+h1 {
+  font-family: var(--font-display), Arial, Helvetica, sans-serif;
 }

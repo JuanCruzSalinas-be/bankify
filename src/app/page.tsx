@@ -74,7 +74,7 @@ function Hero() {
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           Built for banks, credit unions, and everyday account holders
         </div>
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
+        <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl md:text-6xl">
           Stop AI scams before the money moves.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">

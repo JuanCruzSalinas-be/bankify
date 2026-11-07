@@ -15,12 +15,12 @@ export default function DemoPage() {
       <Nav />
       <main className="flex-1">
         <section className="mx-auto max-w-5xl px-6 pt-16 pb-8 text-center">
-          <h1 className="text-sm font-semibold uppercase tracking-wider text-emerald-400">
+          <p className="text-sm font-semibold uppercase tracking-wider text-emerald-400">
             Live demo
-          </h1>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            See what Bankify would catch.
           </p>
+          <h1 className="mt-3 text-3xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-white sm:text-5xl">
+            See what gets flagged.
+          </h1>
           <p className="mx-auto mt-4 max-w-2xl text-slate-300">
             Paste in a call transcript or message, or try one of the example
             scams below, to see how a request would be scored.
