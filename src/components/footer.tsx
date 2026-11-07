@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-slate-500 sm:flex-row">
         <div className="flex items-center gap-2">
           <ShieldIcon className="h-4 w-4 text-emerald-400" />
-          <span>Bankify</span>
+          <span className="font-heading font-medium">Bankify</span>
         </div>
         <p>&copy; 2026 Bankify. All rights reserved.</p>
       </div>

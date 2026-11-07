@@ -141,7 +141,9 @@ export function DemoClient() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Risk score
                 </p>
-                <p className={`mt-1 text-4xl font-semibold ${tierCopy.scoreText}`}>
+                <p
+                  className={`font-heading mt-1 text-4xl font-semibold ${tierCopy.scoreText}`}
+                >
                   {result.score}
                   <span className="text-lg text-slate-500">/100</span>
                 </p>
