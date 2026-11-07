@@ -24,6 +24,9 @@ export function Nav() {
           <Link href="/demo" className="hover:text-white">
             Live demo
           </Link>
+          <Link href="/dashboard" className="hover:text-white">
+            Dashboard
+          </Link>
         </nav>
         <Link
           href="/demo"
