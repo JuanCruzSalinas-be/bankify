@@ -1,70 +1,88 @@
 export type AlertStatus = "held" | "reviewing" | "cleared";
+export type Channel = "Voice call" | "Video call";
 
 export type Alert = {
   id: string;
-  recipient: string;
+  claimedIdentity: string;
+  channel: Channel;
   amount: number;
   date: string;
   score: number;
   status: AlertStatus;
+  flaggedAt: string | null;
   reason: string;
 };
 
-export const TOTAL_SCREENED_THIS_MONTH = 214;
+export const TOTAL_CALLS_SCREENED_THIS_MONTH = 86;
 
 export const ALERTS: Alert[] = [
   {
-    id: "txn-1042",
-    recipient: "Unknown — gift card retailer",
-    amount: 3000,
+    id: "call-2041",
+    claimedIdentity: "Senior government office (international wire)",
+    channel: "Video call",
+    amount: 250000,
     date: "Nov 6",
-    score: 100,
+    score: 96,
     status: "held",
-    reason: "Secrecy request, untraceable payment, emotional urgency",
+    flaggedAt: "0:41 into call",
+    reason:
+      "Face-swap artifacts on video feed, voice print mismatch against reference sample, extreme urgency and confidentiality request",
   },
   {
-    id: "txn-1039",
-    recipient: "New vendor account (unverified)",
-    amount: 15000,
+    id: "call-2037",
+    claimedIdentity: "Partner bank executive",
+    channel: "Voice call",
+    amount: 180000,
     date: "Nov 5",
-    score: 75,
+    score: 88,
     status: "held",
-    reason: "Executive impersonation, urgency, confidentiality request",
+    flaggedAt: "1:12 into call",
+    reason:
+      "Real-time voice-clone artifacts detected, request to settle via an unverified holding account",
   },
   {
-    id: "txn-1035",
-    recipient: "\"Bank Security\" holding account",
-    amount: 8400,
+    id: "call-2030",
+    claimedIdentity: "Regional CFO, Northfield Holdings",
+    channel: "Voice call",
+    amount: 45000,
     date: "Nov 4",
-    score: 55,
+    score: 54,
     status: "reviewing",
-    reason: "Account threat language, authority impersonation",
+    flaggedAt: "2:05 into call",
+    reason:
+      "Minor voice pattern irregularities, request inconsistent with this caller's prior history",
   },
   {
-    id: "txn-1031",
-    recipient: "J. Alvarez — personal account",
-    amount: 600,
+    id: "call-2024",
+    claimedIdentity: "CFO, Northfield Holdings (verified)",
+    channel: "Video call",
+    amount: 12000,
     date: "Nov 3",
-    score: 20,
+    score: 8,
     status: "cleared",
-    reason: "Minor urgency language, consistent with past activity",
+    flaggedAt: null,
+    reason: "Voice and face matched reference sample, routine quarterly settlement",
   },
   {
-    id: "txn-1028",
-    recipient: "Riverside Property Mgmt",
-    amount: 1200,
+    id: "call-2018",
+    claimedIdentity: "Operations lead, Vantage Partners (verified)",
+    channel: "Voice call",
+    amount: 3200,
     date: "Nov 1",
-    score: 10,
+    score: 0,
     status: "cleared",
-    reason: "Routine recurring transfer, no signals detected",
+    flaggedAt: null,
+    reason: "No signals detected, consistent with past activity",
   },
   {
-    id: "txn-1022",
-    recipient: "M. Chen — personal account",
-    amount: 250,
+    id: "call-2011",
+    claimedIdentity: "Client relationship manager (verified)",
+    channel: "Voice call",
+    amount: 900,
     date: "Oct 29",
     score: 0,
     status: "cleared",
+    flaggedAt: null,
     reason: "No signals detected",
   },
 ];
@@ -75,7 +93,7 @@ export function getStats(alerts: Alert[]) {
   const protectedAmount = held.reduce((sum, a) => sum + a.amount, 0);
 
   return {
-    screened: TOTAL_SCREENED_THIS_MONTH,
+    screened: TOTAL_CALLS_SCREENED_THIS_MONTH,
     held: held.length,
     reviewing: reviewing.length,
     protectedAmount,

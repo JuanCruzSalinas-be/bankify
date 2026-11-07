@@ -12,6 +12,9 @@ export function Nav() {
           </span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-slate-300 md:flex">
+          <Link href="/about" className="hover:text-white">
+            About
+          </Link>
           <Link href="/#how-it-works" className="hover:text-white">
             How it works
           </Link>
