@@ -1,0 +1,9 @@
+# Local development only; do not use the placeholder credentials in production.
+port: 7880
+rtc:
+  node_ip: YOUR_MAC_LAN_IP
+  use_external_ip: false
+  tcp_port: 7881
+  udp_port: 7882
+keys:
+  devkey: REPLACE_WITH_A_LONG_RANDOM_SECRET

@@ -1,0 +1,11 @@
+# Replace YOUR_MAC_LAN_IP with the Mac's address on the test Wi-Fi.
+# Local development only; trust the local Caddy CA on test devices.
+https://YOUR_MAC_LAN_IP:8443 {
+    tls internal
+    reverse_proxy 127.0.0.1:7880
+}
+
+https://YOUR_MAC_LAN_IP:8444 {
+    tls internal
+    reverse_proxy 127.0.0.1:3000
+}
