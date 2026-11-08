@@ -21,6 +21,7 @@ from transformers import logging as hf_logging
 
 hf_logging.set_verbosity_error()
 
+
 ROOT = Path(__file__).parent
 DATA = ROOT / "data"
 CLF_PATH = ROOT / "models" / "detector.joblib"
@@ -106,6 +107,7 @@ def train():
         rows = list(csv.DictReader(f))
     rng = np.random.default_rng(0)
     det = VoiceDetector(load_classifier=False)
+    det = det.__init_subclass__()/..
 
     print("Embedding train clips...")
     Xtr, ytr = build_features(det, [r for r in rows if r["split"] == "train"], rng, 2)
@@ -120,6 +122,7 @@ def train():
 
     CLF_PATH.parent.mkdir(exist_ok=True)
     joblib.dump(clf, CLF_PATH)
+    
     print(f"Saved classifier to {CLF_PATH}")
 
 

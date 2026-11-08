@@ -11,29 +11,49 @@ let speakerEnabled = true;
 let joined = false;
 let connecting = false;
 const audioElements = new Map();
+let meterTimer = null;
+
+const svg = (body) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+const handset = '<path d="M6.6 3.5h2.6l1.4 4-2 1.3a12 12 0 0 0 6.6 6.6l1.3-2 4 1.4v2.6a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/>';
+const mic = '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>';
+const cone = '<path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/>';
+const ICONS = {
+  call: svg(handset),
+  hangup: svg(`<g transform="rotate(135 12 12)">${handset}</g>`),
+  mic: svg(mic),
+  micOff: svg(`${mic}<path d="M4 4l16 16"/>`),
+  speaker: svg(`${cone}<path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>`),
+  speakerOff: svg(`${cone}<path d="M16 10l4 4M20 10l-4 4"/>`),
+};
 
 $('app').innerHTML = `
-<main class="app-shell">
- <header class="topbar"><div class="brand"><span class="logo">◈</span><div><strong>VoiceShield</strong><small>SECURE AUDIO LAB</small></div></div><span class="connection-tag" id="connection-tag"><span class="status-dot"></span><span id="top-status">Ready</span></span></header>
- <section class="phone-frame" aria-label="Voice call control panel">
-   <div class="upper"><div class="eyebrow">PRIVATE AUDIO SESSION</div><div class="avatar" aria-hidden="true"><svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="27" r="12" stroke="currentColor" stroke-width="2.5"/><path d="M19 65c0-14 9-22 21-22s21 8 21 22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
-   <h1 id="peer-title">Receiver</h1><p class="peer-subtitle" id="peer-subtitle">Waiting to start a call</p><div class="timer" id="call-timer">00:00</div>
-   <div class="wave" id="wave" aria-label="Audio activity"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-   <div class="bottom">
-    <div class="role-area"><span class="field-label">THIS PHONE IS</span><div class="role-buttons" role="group" aria-label="Choose phone role"><button id="role-caller" class="role-btn" type="button">Caller</button><button id="role-receiver" class="role-btn" type="button">Receiver</button></div></div>
-    <div class="controls"><button id="mute-btn" class="control" type="button" disabled aria-label="Mute microphone"><span class="control-icon" id="mic-icon">🎙</span><span id="mute-label">Mute</span></button><button id="speaker-btn" class="control active" type="button" disabled aria-label="Toggle speaker"><span class="control-icon" id="speaker-icon">🔊</span><span id="speaker-label">Speaker on</span></button></div>
-    <button type="button" id="join-btn" class="primary-call"><span id="join-icon">☎</span><span id="join-label">Start audio call</span></button>
-    <div class="security-line"><span>🔒</span> Audio-only encrypted transport · No camera</div>
-   </div>
+<main class="call">
+ <header class="bar">
+  <span class="wordmark">VoiceShield</span>
+  <span class="conn" id="connection-tag"><span id="top-status">Ready</span></span>
+ </header>
+ <section class="peer" aria-label="Call">
+  <p class="peer-kicker">Other phone</p>
+  <h1 id="peer-title">Receiver</h1>
+  <p class="peer-subtitle" id="peer-subtitle">Waiting to start a call</p>
+  <div class="peer-line"><span class="timer" id="call-timer">00:00</span><span class="meter" id="wave" aria-hidden="true"><span></span></span></div>
  </section>
- <div class="info" id="info" role="status" aria-live="polite">Choose your role and start the call. On the other phone, choose the opposite role.</div>
  <section class="detector-panel" id="detector-panel" aria-live="polite">
-  <div class="detector-heading"><span>◉ VoiceShield AI voice monitoring</span><span id="detector-state">Offline</span></div>
-  <div class="detector-message" id="detector-message">Waiting for the PellaV2 detection worker…</div>
-  <div class="detector-score" id="detector-score">No analysis yet</div>
-  <div class="detector-note">PellaV2 experimental model output. Not a calibrated probability or proof of human identity. Verify requests independently.</div>
+  <div class="detector-heading"><span>Voice check</span><span class="detector-state" id="detector-state">Offline</span></div>
+  <p class="detector-message" id="detector-message">Waiting for the PellaV2 detection worker…</p>
+  <p class="detector-score" id="detector-score">No analysis yet</p>
+  <p class="detector-note">Experimental PellaV2 output — not a calibrated probability or proof of identity. Verify any request through another channel.</p>
  </section>
- <footer>Local development prototype • Not a cellular phone call</footer>
+ <section class="dock">
+  <div class="role"><span class="field-label" id="role-label">This phone is the</span><div class="role-buttons" role="group" aria-labelledby="role-label"><button id="role-caller" class="role-btn" type="button">Caller</button><button id="role-receiver" class="role-btn" type="button">Receiver</button></div></div>
+  <div class="controls">
+   <button id="mute-btn" class="control" type="button" disabled aria-label="Mute microphone"><span class="control-icon" id="mic-icon">${ICONS.mic}</span><span id="mute-label">Mute</span></button>
+   <button type="button" id="join-btn" class="control call-btn"><span class="control-icon" id="join-icon">${ICONS.call}</span><span id="join-label">Call</span></button>
+   <button id="speaker-btn" class="control active" type="button" disabled aria-label="Toggle speaker"><span class="control-icon" id="speaker-icon">${ICONS.speaker}</span><span id="speaker-label">Speaker</span></button>
+  </div>
+  <p class="info" id="info" role="status" aria-live="polite">Pick a role, then call. The other phone picks the opposite one.</p>
+ </section>
+ <footer>Local prototype over LiveKit — not a cellular call.</footer>
  <div id="audio-container" aria-hidden="true"></div>
 </main>`;
 
@@ -51,20 +71,24 @@ function updateRole() {
 function setState(state) {
   const busy = state === 'connecting'; joined = state === 'connected'; connecting = busy;
   $('join-btn').disabled = busy;
-  $('join-label').textContent = busy ? 'Connecting…' : joined ? 'Hang up' : 'Start audio call';
-  $('join-icon').textContent = joined ? '✕' : '☎';
+  $('join-label').textContent = busy ? 'Connecting…' : joined ? 'End' : 'Call';
+  $('join-icon').innerHTML = joined ? ICONS.hangup : ICONS.call;
+  $('join-btn').setAttribute('aria-label', joined ? 'Hang up' : 'Start audio call');
   $('join-btn').classList.toggle('hangup', joined);
   $('mute-btn').disabled = !joined;
   $('speaker-btn').disabled = !joined;
   $('top-status').textContent = busy ? 'Connecting' : joined ? 'Connected' : 'Ready';
   $('connection-tag').classList.toggle('connected', joined);
-  $('wave').classList.toggle('animated', joined);
+  $('wave').classList.toggle('live', joined);
   updateRole();
-  if (!joined) { clearInterval(timer); timer = null; connectedAt = 0; updateTimer(); }
+  if (!joined) { clearInterval(timer); timer = null; clearInterval(meterTimer); meterTimer = null; $('wave').style.setProperty('--level', 0); connectedAt = 0; updateTimer(); }
 }
+function findPeer() { return room && [...room.remoteParticipants.values()].find(p => p.identity === (selectedRole === 'caller' ? 'receiver' : 'caller')); }
+// Meter shows the other phone's real audio level, not a decorative animation.
+function updateMeter() { const peer = findPeer(); $('wave').style.setProperty('--level', peer ? Math.min(1, peer.audioLevel * 3).toFixed(3) : 0); }
 function refreshPeerStatus() {
   if (!room || !joined) return;
-  const peer = [...room.remoteParticipants.values()].find(p => p.identity === (selectedRole === 'caller' ? 'receiver' : 'caller'));
+  const peer = findPeer();
   $('peer-subtitle').textContent = peer ? 'Audio call connected' : 'Waiting for other phone to join';
   if (peer) setInfo('Connected. You can hear and speak to the other phone.');
   else setInfo('Connected to LiveKit. Waiting for the other phone to join.');
@@ -75,7 +99,7 @@ function attachTrack(track, _publication, participant) {
   if (audioElements.has(track)) return;
   const el = track.attach(); el.autoplay = true; el.playsInline = true; el.muted = !speakerEnabled;
   $('audio-container').appendChild(el); audioElements.set(track, el);
-  el.play().catch(() => setInfo('Tap Speaker to enable sound. Mobile browsers may require an extra tap.', true));
+  el.play().catch(() => setInfo('Tap Speaker to turn sound on — mobile browsers need an extra tap.', true));
 }
 function detachTrack(track) { const el = audioElements.get(track); if (el) { track.detach(el); el.remove(); audioElements.delete(track); } }
 async function startCall() {
@@ -114,9 +138,10 @@ async function startCall() {
     connectedAt = Date.now();
     setState('connected');
     timer = setInterval(updateTimer, 1000);
+    meterTimer = setInterval(updateMeter, 100);
     updateTimer(); refreshPeerStatus();
-    $('mute-label').textContent = 'Mute'; $('mic-icon').textContent = '🎙'; $('mute-btn').classList.remove('off');
-    if (!newRoom.canPlaybackAudio) setInfo('Connected. Tap Speaker on to enable remote audio.');
+    $('mute-label').textContent = 'Mute'; $('mic-icon').innerHTML = ICONS.mic; $('mute-btn').classList.remove('off');
+    if (!newRoom.canPlaybackAudio) setInfo('Connected. Tap Speaker to hear the other phone.');
   } catch (error) {
     if (micTrack) micTrack.stop();
     const failedRoom = room; room = null;
@@ -134,7 +159,7 @@ $('role-receiver').addEventListener('click', () => { if (!joined && !connecting)
 $('mute-btn').addEventListener('click', async () => {
   if (!room) return;
   const enabled = !room.localParticipant.isMicrophoneEnabled;
-  try { await room.localParticipant.setMicrophoneEnabled(enabled); $('mute-label').textContent = enabled ? 'Mute' : 'Unmute'; $('mic-icon').textContent = enabled ? '🎙' : '🔇'; $('mute-btn').classList.toggle('off', !enabled); }
+  try { await room.localParticipant.setMicrophoneEnabled(enabled); $('mute-label').textContent = enabled ? 'Mute' : 'Unmute'; $('mic-icon').innerHTML = enabled ? ICONS.mic : ICONS.micOff; $('mute-btn').classList.toggle('off', !enabled); }
   catch (error) { setInfo(`Microphone error: ${error.message}`, true); }
 });
 $('speaker-btn').addEventListener('click', async () => {
@@ -143,8 +168,8 @@ $('speaker-btn').addEventListener('click', async () => {
   }
   speakerEnabled = !speakerEnabled;
   for (const el of audioElements.values()) { el.muted = !speakerEnabled; if (speakerEnabled) await el.play().catch(() => {}); }
-  $('speaker-label').textContent = speakerEnabled ? 'Speaker on' : 'Speaker off';
-  $('speaker-icon').textContent = speakerEnabled ? '🔊' : '🔇';
+  $('speaker-label').textContent = speakerEnabled ? 'Speaker' : 'Speaker off';
+  $('speaker-icon').innerHTML = speakerEnabled ? ICONS.speaker : ICONS.speakerOff;
   $('speaker-btn').classList.toggle('off', !speakerEnabled);
   $('speaker-btn').classList.toggle('active', speakerEnabled);
 });
@@ -188,7 +213,7 @@ async function updateDetection() {
       $('detector-score').textContent = `Raw score: ${d.p_fake.toFixed(3)} · model ${Math.round(d.model_ms||0)} ms · audio age ${Math.round(audioAgeMs)} ms · dropped ${d.dropped||0}`;
     } else {
       $('detector-message').textContent = d.message || 'Listening for caller audio…';
-      $('detector-score').textContent = 'AI assessment follows the first 4-second window';
+      $('detector-score').textContent = 'First result after 4 seconds of caller audio';
     }
   } catch(e) {
     $('detector-state').textContent = 'Offline';
